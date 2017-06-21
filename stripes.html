@@ -1,0 +1,105 @@
+
+
+<script src="https://code.createjs.com/tweenjs-0.6.2.min.js"></script>
+<script src="https://code.createjs.com/easeljs-0.8.2.min.js"></script>
+
+<body onload="init();">
+<div id="wrap">
+  <canvas id="demoCanvas" width="1080" height="50"></canvas>
+  <div><span>TESTING</span></div>
+</div>
+</body>
+<style>
+body{
+	background:black;
+}
+#demoCanvas{
+	background: white;
+	position:absolute;
+	z-index:-100;
+}
+#wrap{
+	height:95vh;
+	position: relative;
+}
+#wrap div{
+		text-align: center;
+		height:95vh;
+		margin:0 auto;
+		font-size:3em;
+}
+#wrap span{
+	width:auto;
+	border:0.25em solid black;
+	position: relative;
+	top:50%;
+	padding:0.25em;
+	
+}
+</style>
+<script>
+	//config options
+	var limit = 20;
+	var speed = 5000;
+	//application vars
+	var stage = new createjs.Stage("demoCanvas");
+	var w = document.getElementById('wrap').offsetWidth;
+	var h = document.getElementById('wrap').offsetHeight;
+	var stripes = new Array();
+
+	function init() {
+		//initializes the canvas	
+		stage.canvas.width = w;
+		stage.canvas.height = h;
+		stage.update();
+		next();
+		createjs.Ticker.setFPS(120);
+		createjs.Ticker.addEventListener("tick", stage);
+	}
+	function next(){
+		//creates a new stripe
+		var xloc = Math.random() * w;
+		var r = Math.floor(Math.random() * (150 - 100) + 100);
+		var g = Math.floor(Math.random() * (150 - 100) + 100);
+		var b = Math.floor(Math.random() * (255 - 100) + 100);
+		var rgb = "rgba("+ r +"," + g +","+ b +",1)";
+		var rect = new createjs.Shape();
+		rect.graphics.beginFill(rgb).drawRect(xloc,(h+h),h,h);
+		stage.addChild(rect);
+		stripes.push(rect);//adds stripe to array
+		createjs.Tween.get(rect, { loop: false})
+  		.to({ y: -(h+h) }, speed, createjs.Ease.getPowInOut(3)).call(next);
+  	}
+
+  	function countStripes(){
+  		//counts our current amount of stripes and checks against the limit to see if we need to purge. 
+  		tStripes = 0;
+  		stripes.forEach(function(stripe) {
+		    tStripes =tStripes +1;
+		});
+  		if(tStripes>=limit){
+  			purge();
+  		}
+  		console.log("total stripes = "+tStripes);
+  		tStripes = 0;			
+	}
+
+	function purge(){
+		stripes.shift();
+	}
+
+	function handleResize(){
+		//reforms the canvas when the page is resized. 
+		var wr = document.getElementById('wrap').offsetWidth;
+		var hr = document.getElementById('wrap').offsetHeight;
+		stage.canvas.width = wr;
+		stage.canvas.height = hr;
+		stage.update();
+		console.log("resize- "+wr+ "/" + hr);
+		w = wr;
+		h =hr;
+		
+	}
+window.addEventListener("resize", handleResize, true);
+</script>
+
